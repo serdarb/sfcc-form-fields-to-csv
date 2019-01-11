@@ -1,9 +1,10 @@
 'use strict';
 
 const fs = require('fs');
-const xmlParser = require('xml2js').parseString;
+const path = require('path');
 
-const filesFolder = __dirname + '\\files';
+const xmlParser = require('xml2js').parseString;
+const filesFolder = path.join(__dirname, 'files');
 
 const processFiles = () => {
 
@@ -13,11 +14,11 @@ const processFiles = () => {
         for (var i = 0; i < localeFolders.length; i++) {
             let localeFolder = localeFolders[i];
 
-            let localeFolderPath = filesFolder + '\\' + localeFolder;
+            let localeFolderPath = path.join(filesFolder, localeFolder);
             fs.readdir(localeFolderPath, (err, fileNames) => {
                 if (fileNames == null) { return; }
 
-                let fullPathFileArray = fs.readFileSync(localeFolderPath + '\\fullpaths.txt').toString().split("\r\n");
+                let fullPathFileArray = fs.readFileSync(path.join(localeFolderPath, 'fullpaths.txt')).toString().split("\r\n");
                 let fullPaths = fullPathFileArray.map(p => { var items = p.split(','); 
                                                              return { 'key': items[0], 'value': items[1] }; });
 
@@ -30,7 +31,7 @@ const processFiles = () => {
                     let fileNamePretty = fileName.replace('.xml', '');                 
                     let fullPath = fullPaths.filter(x => x.key === fileName)[0].value;                                
 
-                    fs.readFile(localeFolderPath + '\\' + fileName, 'utf8', (err, xmlContent) => {
+                    fs.readFile(path.join(localeFolderPath, fileName), 'utf8', (err, xmlContent) => {
                         xmlParser(xmlContent, (err, xmlObject) => {                      
 
                             let fields = xmlObject.form.field;
@@ -55,42 +56,42 @@ const processFiles = () => {
       });
 }
 
-const getGroupFields = async (path, locale, fileName, group, prefix) => {
+const getGroupFields = async (webdavPath, locale, fileName, group, prefix) => {
     let groupFields = group.field;
     if (!groupFields) { return; }
   
     prefix = prefix != null || prefix !== undefined ? prefix + '.' + group.$['formid'] : group.$['formid'];
   
-    groupFields.forEach(groupField => { getFieldInfo(path, locale, fileName, groupField, prefix); });
+    groupFields.forEach(groupField => { getFieldInfo(webdavPath, locale, fileName, groupField, prefix); });
   
     let groupGroups = group.group;
     if (groupGroups) {
-      groupGroups.forEach(grp => { getGroupFields(path, locale, fileName, grp, prefix); });
+      groupGroups.forEach(grp => { getGroupFields(webdavPath, locale, fileName, grp, prefix); });
     }
 }
   
-const getListFields = async (path, locale, fileName, list, prefix) => {
+const getListFields = async (webdavPath, locale, fileName, list, prefix) => {
     let listFields = list.field;
     if (!listFields) { return; }
   
     prefix = prefix != null || prefix !== undefined ? prefix + '.' + list.$['formid'] : list.$['formid'];
   
-    listFields.forEach(listField => { getFieldInfo(path, locale, fileName, listField, prefix); });
+    listFields.forEach(listField => { getFieldInfo(webdavPath, locale, fileName, listField, prefix); });
   
     let listLists = list.list;
     if (listLists) {
-      listLists.forEach(lst => { getListFields(path, locale, fileName, lst, prefix); });
+      listLists.forEach(lst => { getListFields(webdavPath, locale, fileName, lst, prefix); });
     }
   
     let listGroups = list.group;
     if (listGroups) {
-      listGroups.forEach(grp => { getGroupFields(path, locale, fileName, grp, prefix); });
+      listGroups.forEach(grp => { getGroupFields(webdavPath, locale, fileName, grp, prefix); });
     }
 }
   
-const getFieldInfo = async (path, locale, fileName, field, prefix) => {
+const getFieldInfo = async (webdavPath, locale, fileName, field, prefix) => {
     let info = {
-      'path': path,
+      'path': webdavPath,
       'locale': locale,
       'fileName': fileName,  
       'name': prefix != null ? prefix + '.' + field.$['formid'] : field.$['formid'],
@@ -101,7 +102,7 @@ const getFieldInfo = async (path, locale, fileName, field, prefix) => {
     };
     //let infoObjectString = JSON.stringify(info);  
 
-    fs.appendFileSync(filesFolder + '\\export-' + locale + '.csv', 
+    fs.appendFileSync(path.join(filesFolder, 'export-' + locale + '.csv'), 
                       info.fileName + ',' + 
                       info.name + ',' + 
                       info.mandatory + ',' + 
