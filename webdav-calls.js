@@ -3,7 +3,7 @@
 const { createClient } = require('webdav');
 const fs = require('fs');
 
-async function getFormFilesIfPathExists (client, path, locales, foundFormXMlFileNames, localeFolderName) {
+const getFormFilesIfPathExists = async (client, path, locales, foundFormXMlFileNames, localeFolderName) => {
     let foundFiles = [];
 
     for (let j = 0, jj = locales.length; j !== jj; j++) {

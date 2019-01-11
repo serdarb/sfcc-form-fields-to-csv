@@ -1,49 +1,27 @@
 'use strict';
 
+const { load } = require('dotenv');
+
 const ocapi = require('./ocapi-calls');
 const webdav = require('./webdav-calls');
 const formFileUtil = require('./form-file-util');
 
-const dotenv = require('dotenv');
-dotenv.load();
-const config = dotenv.config().parsed;
+load();
 
-ocapi.getToken(config.BASE_URL,
-               config.BM_USER, config.BM_PASS,
-               config.CLIENT_ID, config.CLIENT_KEY).then((token) => {
+(async ({ BASE_URL, BM_USER, BM_PASS, CLIENT_ID, CLIENT_KEY, SITE_ID }) => {
+    try {
+        const token = await ocapi.getToken(BASE_URL, BM_USER, BM_PASS, CLIENT_ID, CLIENT_KEY);
+        const activeCodeVersion = await ocapi.getActiveCodeVersion(BASE_URL, token);
+        const cartridges = await ocapi.getSiteCartridges(BASE_URL, SITE_ID, token);
+        const locales = await ocapi.getSiteLocales(BASE_URL, SITE_ID, token);
 
-    // console.log(token);
-    ocapi.getActiveCodeVersion(config.BASE_URL, token).then((activeCodeVersion) => {
+        await webdav.getFormXMLsOfSiteCartridges(BASE_URL, BM_USER, BM_PASS, activeCodeVersion, cartridges, locales);
+        await formFileUtil.processFiles();      
 
-        // console.log(activeCodeVersion);
-        ocapi.getSiteCartridges(config.BASE_URL, config.SITE_ID, token).then((cartridges) => {
-            
-            // console.log(cartridges);
-            ocapi.getSiteLocales(config.BASE_URL, config.SITE_ID, token).then((locales) => {
-
-                // console.log(locales);
-                console.log('\r\nretrived site information from ocapi\r\n');
-                
-                webdav.getFormXMLsOfSiteCartridges(config.BASE_URL,
-                                                   config.BM_USER, config.BM_PASS,
-                                                   activeCodeVersion, cartridges, locales).then(() => {
-
-                    console.log('downloaded form files from webdav\r\n');
-
-                    formFileUtil.processFiles();      
-
-                    console.log('\r\ncompleted!\r\n');
-
-                });
-            }).catch((err) => {
-                // console.log(err.message);
-            });
-        }).catch((err) => {
-            // console.log(err.message);
-        });
-    }).catch((err) => {
-        // console.log(err.message);
-    });
-}).catch((err) => {
-    // console.log(err.message);
-});
+        console.log('\r\ncompleted!\r\n');
+    }
+    catch(err) {
+        console.error(err);
+        process.exit(1);
+    }
+})(dotenv.config().parsed);
