@@ -5,6 +5,8 @@ A tool to collect sites form field info from XML files and export them in one CS
 
 ### OCAPI Roles & Permissions
 
+*Administration >  Site Development >  Open Commerce API Settings*
+
 <pre><code>
 {
     "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
