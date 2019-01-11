@@ -2,13 +2,15 @@
 
 const { createClient } = require('webdav');
 const fs = require('fs');
+const path = require('path');
 
-const getFormFilesIfPathExists = async (client, path, locales, foundFormXMlFileNames, localeFolderName) => {
+const getFormFilesIfPathExists = async (client, webdavPath, locales, foundFormXMlFileNames, localeFolderName) => {
     let foundFiles = [];
 
     for (let j = 0, jj = locales.length; j !== jj; j++) {
         try {
-            let contents = await client.getDirectoryContents(path + '/' + locales[j]);
+            let basePath = webdavPath + '/' + locales[j];
+            let contents = await client.getDirectoryContents(basePath);
 
             for (let i = 0, ii = contents.length; i !== ii; i++) {
                 if (contents[i].filename.indexOf('xml') !== -1) {
@@ -19,7 +21,7 @@ const getFormFilesIfPathExists = async (client, path, locales, foundFormXMlFileN
                         foundFiles.push(filePath);
                         foundFormXMlFileNames.push(fileName);
 
-                        fs.appendFileSync(localeFolderName + '\\fullpaths.txt', fileName + ',' + path + '/' + locales[j] + '/' + fileName + '\r\n');
+                        fs.appendFileSync(path.join(localeFolderName, 'fullpaths.txt'), fileName + ',' + basePath + '/' + fileName + '\r\n');
                     }
                 } else {
                     let val = await getFormFilesIfPathExists(client, contents[i].filename, foundFormXMlFileNames, localeFolderName);
@@ -32,7 +34,7 @@ const getFormFilesIfPathExists = async (client, path, locales, foundFormXMlFileN
                 console.log(e);        
             }
             else if (e.response.status !== 404) {
-                console.log(path + '\r\n' + e + '\r\n');
+                console.log(webdavPath + '\r\n' + e + '\r\n');
             }
         }
     }
@@ -53,7 +55,7 @@ const getFormXMLsOfSiteCartridges = async (baseURL, bmUser, bmPass, activeCodeVe
         let foundFormXMlFileNames = [];
 
         var localeName = preparedLocales[j][1];
-        var localeFolderName = __dirname + '\\files\\' + localeName;
+        var localeFolderName = path.join(__dirname, 'files', localeName);
         if (!fs.existsSync(localeFolderName)) {
             fs.mkdirSync(localeFolderName, { recursive: true }, (r) => { if (r != null) { console.log(r); } });
         }
@@ -68,7 +70,7 @@ const getFormXMLsOfSiteCartridges = async (baseURL, bmUser, bmPass, activeCodeVe
             var formXMLContent = await client.getFileContents(foundFromXMLFilePaths[i], { format: 'text' });
             let fileName = foundFromXMLFilePaths[i].substring(foundFromXMLFilePaths[i].lastIndexOf('/') + 1);
 
-            await fs.writeFile(localeFolderName + '\\' + fileName, formXMLContent, (r) => { if (r != null) { console.log(r); } });
+            await fs.writeFile(path.join(localeFolderName, fileName), formXMLContent, (r) => { if (r != null) { console.log(r); } });
         }
     }
 };
