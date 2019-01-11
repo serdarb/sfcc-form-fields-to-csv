@@ -1,0 +1,19 @@
+{
+  "name": "sfcc-form-fields-to-csv",
+  "version": "0.0.1",
+  "description": "A tool to collect sites form field info from XML files and export them in one CSV file. While gathering info considers cartridge path and site locales.",
+  "main": "index.js",  
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Serdar Büyüktemiz",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "fs": "0.0.1-security",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "webdav": "^2.2.0",
+    "xml2js": "^0.4.19"
+  }
+}
