@@ -1,7 +1,7 @@
 # sfcc-form-fields-to-csv
 A tool to collect sites form field info from XML files and export them in one CSV file. While gathering info considers cartridge path and site locales.
 
-*Please set the settings in the settings.env file before running the tool.*
+*Please set the settings in the settings in .env file before running the tool.*
 
 ### OCAPI Roles & Permissions
 
