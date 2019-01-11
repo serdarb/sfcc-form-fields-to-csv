@@ -16,7 +16,7 @@ const getToken = async (baseURL, bmUser, bmPass, clientId, clientKey) => {
 
     let access_token = response.access_token;  
     if(!access_token) {
-        throw new Error('Error parsing response (getToken) >' + JSON.stringify(response));
+        throw new Error('(getToken) access_token is empty, response: ' + JSON.stringify(response));
     }
     else {
     	return access_token;
@@ -35,8 +35,8 @@ const getActiveCodeVersion = async (baseURL, token) => {
 
     let activeCodeVersion = response.data.filter(x => x.active)[0].id;
     if(!activeCodeVersion) {
-        throw new Error('Error parsing response (getActiveCodeVersion) >' + JSON.stringify(response));
-    }
+        throw new Error('(getActiveCodeVersion) activeCodeVersion is empty, response: ' + JSON.stringify(response));
+    } 
     else {
     	return activeCodeVersion;
     }
@@ -54,8 +54,8 @@ const getSiteCartridges = async (baseURL, siteId, token) => {
 
     let cartridges = response.cartridges.split(':');
     if(!cartridges) {
-        throw new Error('Error parsing response (getSiteCartridges) >' + JSON.stringify(response));
-    }
+        throw new Error('(getSiteCartridges) cartridges is empty, response: ' + JSON.stringify(response));
+    } 
     else {
     	return cartridges;
     }
@@ -73,7 +73,7 @@ const getSiteLocales = async (baseURL, siteId, token) => {
 
     let locales = response.hits;   
     if(!locales) {
-        throw new Error('Error parsing response (getSiteLocales) >' + JSON.stringify(response));
+        throw new Error('(getSiteLocales) locales is empty, response: ' + JSON.stringify(response));
     }
     else {
         

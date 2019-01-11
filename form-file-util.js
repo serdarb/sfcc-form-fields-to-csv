@@ -5,16 +5,16 @@ const xmlParser = require('xml2js').parseString;
 
 const filesFolder = __dirname + '\\files';
 
-function processFiles() {
+const processFiles = () => {
 
-    fs.readdir(filesFolder, function (err, localeFolders) {
+    fs.readdir(filesFolder, (err, localeFolders) => {
         if (localeFolders == null) { return; }
 
         for (var i = 0; i < localeFolders.length; i++) {
             let localeFolder = localeFolders[i];
 
             let localeFolderPath = filesFolder + '\\' + localeFolder;
-            fs.readdir(localeFolderPath, function (err, fileNames) {
+            fs.readdir(localeFolderPath, (err, fileNames) => {
                 if (fileNames == null) { return; }
 
                 let fullPathFileArray = fs.readFileSync(localeFolderPath + '\\fullpaths.txt').toString().split("\r\n");
@@ -30,8 +30,8 @@ function processFiles() {
                     let fileNamePretty = fileName.replace('.xml', '');                 
                     let fullPath = fullPaths.filter(x => x.key === fileName)[0].value;                                
 
-                    fs.readFile(localeFolderPath + '\\' + fileName, 'utf8', function (err, xmlContent) {
-                        xmlParser(xmlContent, function (err, xmlObject) {                      
+                    fs.readFile(localeFolderPath + '\\' + fileName, 'utf8', (err, xmlContent) => {
+                        xmlParser(xmlContent, (err, xmlObject) => {                      
 
                             let fields = xmlObject.form.field;
                             if (fields) {
